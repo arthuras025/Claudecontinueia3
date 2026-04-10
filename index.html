@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ContinueAI — AI App Builder · Agent Platform · SaaS Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #f0ede8;
+    --muted: #6b6860;
+    --accent: #c8f060;
+    --accent-dim: rgba(200,240,96,0.12);
+    --purple: #9b8cff;
+    --purple-dim: rgba(155,140,255,0.1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid noise texture ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,10,0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 9px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border-hover);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); background: rgba(255,255,255,0.04); }
+
+  .btn-primary {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: #0a0a0a;
+    font-weight: 500;
+  }
+  .btn-primary:hover { background: #d4f570; transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    z-index: 1;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(200,240,96,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-hover);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 40px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    max-width: 900px;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.2s;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.35s;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.5s;
+  }
+
+  .hero-actions .btn {
+    padding: 13px 28px;
+    font-size: 14px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 72px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards 0.65s;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .marquee-wrap::before,
+  .marquee-wrap::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 120px;
+    z-index: 2;
+  }
+  .marquee-wrap::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); }
+  .marquee-wrap::after  { right: 0; background: linear-gradient(-90deg, var(--surface), transparent); }
+
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 28s linear infinite;
+    white-space: nowrap;
+  }
+
+  .marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 28px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    border-right: 1px solid var(--border);
+  }
+
+  .marquee-item span {
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── FEATURES ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 24px;
+  }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .section-title em { font-style: italic; color: var(--purple); }
+
+  .section-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.7;
+    margin-bottom: 60px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    padding: 36px 32px;
+    transition: background 0.2s;
+    position: relative;
+  }
+
+  .feature-card:hover { background: rgba(255,255,255,0.03); }
+
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .feature-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .feature-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+
+  /* ── DEMO / CODE BLOCK ── */
+  .demo-section {
+    position: relative;
+    z-index: 1;
+    padding: 0 24px 100px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .demo-left {
+    background: var(--surface);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .demo-right {
+    background: #0d0d0d;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .code-body {
+    padding: 24px 24px 40px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 2;
+    color: #6b7280;
+    overflow: hidden;
+  }
+
+  .code-body .kw { color: #9b8cff; }
+  .code-body .fn { color: #c8f060; }
+  .code-body .str { color: #f9a76a; }
+  .code-body .cm { color: #3d3d3d; }
+  .code-body .tx { color: #c9c5bc; }
+
+  /* ── PRICING ── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 0;
+  }
+
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s;
+  }
+
+  .pricing-card:hover { border-color: var(--border-hover); }
+
+  .pricing-card.featured {
+    border-color: var(--accent);
+    background: rgba(200,240,96,0.03);
+  }
+
+  .pricing-badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    align-self: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .pricing-name {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pricing-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 44px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-price sup { font-size: 20px; }
+  .pricing-period { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+  .pricing-feats { list-style: none; flex: 1; margin-bottom: 28px; }
+
+  .pricing-feats li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pricing-feats li:last-child { border-bottom: none; }
+
+  .pricing-feats li::before {
+    content: '→';
+    color: var(--accent);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .demo-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Continue<span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Produto</a></li>
+    <li><a href="#pricing">Preços</a></li>
+    <li><a href="#docs">Docs</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="/login" class="btn btn-ghost">Entrar</a>
+    <a href="/register" class="btn btn-primary">Começar grátis →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">v1.0 · Pronto para produção</div>
+  <h1>Construa apps com <em>IA.</em><br/>Lance seu SaaS hoje.</h1>
+  <p class="hero-sub">
+    Do código ao deploy em minutos. Gerencie agentes, processe pagamentos e escale com infraestrutura completa.
+  </p>
+  <div class="hero-actions">
+    <a href="/register" class="btn btn-primary">Começar grátis →</a>
+    <a href="/dashboard" class="btn btn-ghost">Ver demo</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-val">3x</div>
+      <div class="stat-label">mais rápido</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val">100%</div>
+      <div class="stat-label">TypeScript</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-val">∞</div>
+      <div class="stat-label">escalável</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item"><span>✦</span> Next.js 14</div>
+    <div class="marquee-item"><span>✦</span> Supabase Auth</div>
+    <div class="marquee-item"><span>✦</span> Stripe Billing</div>
+    <div class="marquee-item"><span>✦</span> Claude API</div>
+    <div class="marquee-item"><span>✦</span> Vercel Deploy</div>
+    <div class="marquee-item"><span>✦</span> TypeScript</div>
+    <div class="marquee-item"><span>✦</span> Tailwind CSS</div>
+    <div class="marquee-item"><span>✦</span> App Router</div>
+    <div class="marquee-item"><span>✦</span> Edge Runtime</div>
+    <div class="marquee-item"><span>✦</span> Webhooks</div>
+    <div class="marquee-item"><span>✦</span> Next.js 14</div>
+    <div class="marquee-item"><span>✦</span> Supabase Auth</div>
+    <div class="marquee-item"><span>✦</span> Stripe Billing</div>
+    <div class="marquee-item"><span>✦</span> Claude API</div>
+    <div class="marquee-item"><span>✦</span> Vercel Deploy</div>
+    <div class="marquee-item"><span>✦</span> TypeScript</div>
+    <div class="marquee-item"><span>✦</span> Tailwind CSS</div>
+    <div class="marquee-item"><span>✦</span> App Router</div>
+    <div class="marquee-item"><span>✦</span> Edge Runtime</div>
+    <div class="marquee-item"><span>✦</span> Webhooks</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div id="features" class="section">
+  <div class="reveal">
+    <div class="section-tag">// produto</div>
+    <h2 class="section-title">Tudo que você precisa<br/>para lançar <em>hoje.</em></h2>
+    <p class="section-sub">Um painel, três superpoderes. Do código gerado por IA ao billing em produção.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">AI App Builder</div>
+      <div class="feature-desc">Descreva o que quer construir. Claude gera o código completo com UI, backend e API — em tempo real com streaming.</div>
+      <span class="feature-tag">claude-sonnet-4-6</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">Agent Platform</div>
+      <div class="feature-desc">Configure, monitore e escale agentes de IA com system prompts customizados, ferramentas e memória persistente.</div>
+      <span class="feature-tag">multi-model</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <div class="feature-title">SaaS Engine</div>
+      <div class="feature-desc">Billing com Stripe, autenticação com Supabase, deploy automático com Vercel. Infraestrutura completa pré-configurada.</div>
+      <span class="feature-tag">production-ready</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-title">Auth completo</div>
+      <div class="feature-desc">Login, cadastro, sessão persistente e RLS por usuário. Supabase Auth integrado com políticas de segurança.</div>
+      <span class="feature-tag">supabase auth</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-title">Deploy instantâneo</div>
+      <div class="feature-desc">GitHub → Vercel → produção em menos de 2 minutos. Pipeline CI/CD automático a cada push.</div>
+      <span class="feature-tag">vercel edge</span>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Dashboard em tempo real</div>
+      <div class="feature-desc">Métricas de projetos, agentes, requisições e MRR. Tudo centralizado num painel limpo e navegável.</div>
+      <span class="feature-tag">real-time</span>
+    </div>
+  </div>
+</div>
+
+<!-- CODE DEMO -->
+<div class="demo-section">
+  <div class="demo-grid reveal">
+    <div class="demo-left">
+      <div class="section-tag">// builder</div>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:32px;line-height:1.15;letter-spacing:-0.02em;margin-bottom:16px;color:var(--text)">
+        Descreva.<br/>Receba o código.
+      </h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px">
+        O AI App Builder usa Claude Sonnet 4.6 com streaming para gerar código TypeScript completo, arquivo por arquivo, em tempo real.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+          <span style="color:var(--accent)">→</span> Componentes React + Tailwind
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+          <span style="color:var(--accent)">→</span> API routes Next.js
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+          <span style="color:var(--accent)">→</span> Integração Supabase
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+          <span style="color:var(--accent)">→</span> Pronto para copiar e usar
+        </div>
+      </div>
+    </div>
+    <div class="demo-right">
+      <div class="code-header">
+        <div class="code-dot" style="background:#ff5f57"></div>
+        <div class="code-dot" style="background:#febc2e"></div>
+        <div class="code-dot" style="background:#28c840"></div>
+        <span style="margin-left:8px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace">app/api/builder/route.ts</span>
+      </div>
+      <div class="code-body">
+        <span class="cm">// ContinueAI · streaming builder</span><br/>
+        <span class="kw">import</span> <span class="tx">{ NextRequest }</span> <span class="kw">from</span> <span class="str">'next/server'</span><br/><br/>
+        <span class="kw">export const</span> <span class="fn">runtime</span> <span class="tx">= </span><span class="str">'edge'</span><br/><br/>
+        <span class="kw">export async function</span> <span class="fn">POST</span><span class="tx">(req: NextRequest) {</span><br/>
+        &nbsp;&nbsp;<span class="kw">const</span> <span class="tx">{ messages } =</span> <span class="kw">await</span> <span class="tx">req.</span><span class="fn">json</span><span class="tx">()</span><br/><br/>
+        &nbsp;&nbsp;<span class="kw">const</span> <span class="tx">res =</span> <span class="kw">await</span> <span class="fn">fetch</span><span class="tx">(</span><span class="str">'https://api.anthropic.com/v1/messages'</span><span class="tx">, {</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">method: </span><span class="str">'POST'</span><span class="tx">,</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">body: </span><span class="fn">JSON.stringify</span><span class="tx">({</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">model: </span><span class="str">'claude-sonnet-4-6'</span><span class="tx">,</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">stream: </span><span class="kw">true</span><span class="tx">,</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">messages,</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tx">})</span><br/>
+        &nbsp;&nbsp;<span class="tx">})</span><br/><br/>
+        &nbsp;&nbsp;<span class="kw">return new</span> <span class="fn">Response</span><span class="tx">(res.body)</span><br/>
+        <span class="tx">}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div id="pricing" class="section" style="padding-top:40px">
+  <div class="reveal">
+    <div class="section-tag">// preços</div>
+    <h2 class="section-title">Simples.<br/><em>Sem surpresas.</em></h2>
+    <p class="section-sub" style="margin-bottom:48px">Comece grátis. Escale quando precisar.</p>
+  </div>
+  <div class="pricing-grid reveal">
+    <div class="pricing-card">
+      <div class="pricing-name">STARTER</div>
+      <div class="pricing-price"><sup>$</sup>0</div>
+      <div class="pricing-period">para sempre grátis</div>
+      <ul class="pricing-feats">
+        <li>3 projetos</li>
+        <li>1 agente de IA</li>
+        <li>1.000 requisições/mês</li>
+        <li>Deploy Vercel</li>
+        <li>Suporte comunidade</li>
+      </ul>
+      <a href="/register" class="btn btn-ghost" style="width:100%;justify-content:center">Começar grátis</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-badge">MAIS POPULAR</div>
+      <div class="pricing-name">PRO</div>
+      <div class="pricing-price"><sup>$</sup>10</div>
+      <div class="pricing-period">por mês · cobrado via Stripe</div>
+      <ul class="pricing-feats">
+        <li>Projetos ilimitados</li>
+        <li>5 agentes de IA</li>
+        <li>50.000 requisições/mês</li>
+        <li>Deploy + domínio customizado</li>
+        <li>Suporte prioritário</li>
+      </ul>
+      <a href="/register" class="btn btn-primary" style="width:100%;justify-content:center">Fazer upgrade →</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-name">ENTERPRISE</div>
+      <div class="pricing-price" style="font-size:32px;padding-top:8px">Custom</div>
+      <div class="pricing-period">fale com o time</div>
+      <ul class="pricing-feats">
+        <li>Tudo do Pro</li>
+        <li>Agentes ilimitados</li>
+        <li>Req. ilimitadas</li>
+        <li>White-label</li>
+        <li>SLA + suporte dedicado</li>
+      </ul>
+      <a href="mailto:hello@continueai.com" class="btn btn-ghost" style="width:100%;justify-content:center">Falar com time</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Continue<span>AI</span></div>
+  <div class="footer-copy">© 2025 ContinueAI · MIT License</div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible')
+        observer.unobserve(e.target)
+      }
+    })
+  }, { threshold: 0.12 })
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+</script>
+</body>
+</html>
